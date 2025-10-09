@@ -1,7 +1,6 @@
 import os
 import numpy as np
 import matplotlib.pyplot as plt
-from datetime import datetime,timezone
 
 
 # Full path of the folder that contains the images to be read
@@ -12,7 +11,6 @@ all_filenames=os.listdir(folder_path)
 
 # converting the list output of os.listdir() function into a numpy array
 all_filenames=np.array(all_filenames)
-
 
 # Learning a separate way of writing the for loop
 desired_extension='.png'
@@ -25,17 +23,13 @@ for f in all_filenames:
         correct_files_counter=correct_files_counter+1
     
 if correct_files_counter==len(all_filenames):
-    print('\nThe directory contains files with a single extension !!')
+    print('\nThe directory contains files with a single extension '+ desired_extension + ' !!')
 elif correct_files_counter==0:
-    print('\nNo files with the given extension !! Check again !!')
+    print('\nNo files with the extension '+desired_extension+' !! Check again !!')
 else:
     print('\nThe folder contains multiple types of files !!\n')
 
 
-'''
-Once the previous task is done, now I am trying to create a numpy array
-with only the filenames without the extensions
-'''
 
 # a null array to store all the name of the files without the extension
 filename_array=np.array([])
@@ -46,13 +40,12 @@ for single_file in all_filenames:
 
 
 # temporary variable to store the seconds
-temp=np.array([]);
+t_vec=np.array([]);
 
 for i in range(len(filename_array)):
     hex_name=filename_array[i]
-    # print('A sample name (in hexadecimal format) = ',hex_name)
 
-    # # Spiltting the filename
+    # Spiltting the filename
     left_part,right_part=hex_name.split("_")
     # print('\nThe left part is (hex format) = ',left_part)
     # print('The right part is (hex format) = ',right_part)
@@ -60,10 +53,30 @@ for i in range(len(filename_array)):
     # # converting both the parts to human readable form
     left_part_in_deci=int(left_part,16)
     right_part_in_deci=int(right_part,16)
-    temp=np.concatenate((temp,np.array([right_part_in_deci])))
+    t_vec=np.concatenate((t_vec,np.array([right_part_in_deci])))
 
     # print('The left part is (decimal format) = ',left_part_in_deci)
     # print('The right part is (decimal format) = ',right_part_in_deci)
 
-print(temp[0:5])
-print('\nThe code is successful !!\n')
+# A vector to say the image number 1,2,3, etc.
+file_vec=np.arange(1,correct_files_counter+1,1)
+
+# fitting a straight line to get the framerate
+image_number_vec=file_vec    # number of images 
+time_vec=(t_vec-t_vec[0])*1e-3    # time stamps of the images in seconds
+
+m,c=np.polyfit(image_number_vec,time_vec,1)
+frame_rate_val=round(m,2)
+
+print('Frame Rate = '+str(frame_rate_val)+' frames/sec')
+
+fig,ax=plt.subplots(1,1,figsize=(8,6))
+plt.subplots_adjust()
+
+ax.scatter(image_number_vec,time_vec,color='black')
+ax.set_xlabel('Image Number',fontsize=18)
+ax.set_ylabel('time instant (s)',fontsize=18)
+ax.tick_params('both',labelsize=18,direction='in')
+
+plt.show()
+
